@@ -25,4 +25,14 @@ class AuthRepository {
       throw e;
     }
   }
+
+  Future<dynamic> logout() async {
+    dynamic response = await apiServices.post(ApiEndpoint.logoutUrl, null);
+
+    try {
+      return response;
+    } catch (e) {
+      throw e;
+    }
+  }
 }

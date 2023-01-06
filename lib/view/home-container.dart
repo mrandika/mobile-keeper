@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:keeper/view/screen/account/account-screen.dart';
 import 'package:keeper/view/screen/home/home-screen.dart';
 import 'package:keeper/view/screen/item/item-screen.dart';
+import 'package:keeper/view_model/item_view_model.dart';
 import 'package:keeper/view_model/profile_view_model.dart';
+import 'package:keeper/view_model/location_view_model.dart';
 import 'package:provider/provider.dart';
 
 class HomeContainer extends StatefulWidget {
@@ -32,10 +34,20 @@ class _HomeContainerState extends State<HomeContainer> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      final view_model = Provider.of<ProfileViewModel>(context, listen: false);
+      final profile_view_model = Provider.of<ProfileViewModel>(context, listen: false);
+      final item_view_model = Provider.of<ItemViewModel>(context, listen: false);
+      final location_view_model = Provider.of<LocationViewModel>(context, listen: false);
 
-      if (view_model.user == null) {
-        view_model.get_profile(context);
+      if (profile_view_model.user == null) {
+        profile_view_model.get_profile(context);
+      }
+
+      if (item_view_model.items?.isEmpty ?? true) {
+        item_view_model.get_item();
+      }
+
+      if (location_view_model.storages?.isEmpty ?? true) {
+        location_view_model.get_storage();
       }
     });
   }
@@ -63,7 +75,7 @@ class _HomeContainerState extends State<HomeContainer> {
             ),
 
             BottomNavigationBarItem(
-                icon: Icon(Icons.home),
+                icon: Icon(Icons.storage),
                 label: 'Item'
             ),
 

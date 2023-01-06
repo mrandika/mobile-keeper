@@ -15,8 +15,38 @@ class ItemRepository {
     }
   }
 
+  Future<dynamic> get_item_detail(String id) async {
+    dynamic response = await apiServices.get('${ApiEndpoint.itemDetailUrl}/$id');
+
+    try {
+      return response;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   Future<dynamic> store_item(dynamic data) async {
     dynamic response = await apiServices.post(ApiEndpoint.itemStoreUrl, data);
+
+    try {
+      return response;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<dynamic> update_item(dynamic data, String id) async {
+    dynamic response = await apiServices.post('${ApiEndpoint.itemUpdateUrl}/$id', data);
+
+    try {
+      return response;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<dynamic> destroy_item(String id) async {
+    dynamic response = await apiServices.delete('${ApiEndpoint.itemDestroyUrl}/$id');
 
     try {
       return response;

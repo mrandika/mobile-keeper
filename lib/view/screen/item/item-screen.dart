@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:keeper/model/data/item.dart';
 import 'package:keeper/utils/AppRoutes.dart';
+import 'package:keeper/view/screen/item/item-detail-screen.dart';
 import 'package:keeper/view_model/item_view_model.dart';
 import 'package:provider/provider.dart';
+
+import '../../component/error.dart';
+import '../../component/loading.dart';
 
 class ItemScreen extends StatefulWidget {
   const ItemScreen({Key? key}) : super(key: key);
@@ -17,59 +19,85 @@ class _ItemScreenState extends State<ItemScreen> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      final view_model = Provider.of<ItemViewModel>(context, listen: false);
-      view_model.get_item(context);
-    });
+    final view_model = Provider.of<ItemViewModel>(context, listen: false);
+
+    if (view_model.items?.isEmpty ?? true) {
+      view_model.get_item();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final view_model = context.watch<ItemViewModel>();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Item'),
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color.fromRGBO(177, 118, 60, 1),
-        icon: Icon(Icons.add),
+        icon: const Icon(Icons.add),
         label: const Text('BARU'),
         onPressed: () {
           Navigator.pushNamed(context, AppRouters.addItem);
         },
       ),
-      body: Container(
-        child: Consumer<ItemViewModel>(
-          builder: (context, value, _) {
-            if (value.is_loading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (value.is_error) {
-              return const Center(
-                child: Text('Error!'),
-              );
-            } else {
-              return RefreshIndicator(
-                  onRefresh: get_items,
-                  child: ListView.builder(
-                      itemCount: value.items?.length ?? 0,
-                      itemBuilder: (_, index) {
-                        return ListTile(
-                          title: Text(value.items?.elementAt(index).name ?? ''),
-                        );
-                      }
-                  )
-              );
-            }
-          },
-        )
-      ),
+      body: Consumer<ItemViewModel>(
+        builder: (context, value, _) {
+          if (value.is_loading) {
+            return const LoadingComponent();
+          } else if (value.is_error) {
+            return const ErrorComponent();
+          } else {
+            return RefreshIndicator(
+                onRefresh: () => value.get_item(),
+                child: ListView.separated(
+                    padding: const EdgeInsets.only(top: 8, bottom: 8),
+                    itemCount: value.items!.length,
+                    itemBuilder: (_, index) {
+                      return InkWell(
+                        child: Container(
+                          padding: const EdgeInsets.only(left: 16, right: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(value.items?.elementAt(index).sku ?? ''),
+                                  Text('Rp. ${value.items?.elementAt(index).price}'),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    value.items?.elementAt(index).name ?? '',
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600
+                                    ),
+                                  ),
+                                  Text(
+                                    'Stok: ${value.items?.elementAt(index).locations?.fold(0, (sum, item) => sum + item.stock!)}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.pushNamed(context, AppRouters.itemDetail, arguments: value.items?.elementAt(index).id);
+                        },
+                      );
+                    },
+                  separatorBuilder: (BuildContext context, _) => const Divider(),
+                )
+            );
+          }
+        },
+      )
     );
-  }
-
-  Future<void> get_items() async {
-    Provider.of<ItemViewModel>(context).get_item(context);
   }
 }

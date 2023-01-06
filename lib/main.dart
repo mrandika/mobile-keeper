@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:keeper/view_model/item-detail_view_model.dart';
 import 'package:keeper/view_model/item_view_model.dart';
 import 'package:keeper/view_model/login_view_model.dart';
 import 'package:keeper/view_model/profile_view_model.dart';
+import 'package:keeper/view_model/location_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,6 +34,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => LoginViewModel()),
         ChangeNotifierProvider(create: (_) => ProfileViewModel()),
         ChangeNotifierProvider(create: (_) => ItemViewModel()),
+        ChangeNotifierProvider(create: (_) => ItemDetailViewModel()),
+        ChangeNotifierProvider(create: (_) => LocationViewModel()),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',

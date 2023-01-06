@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:keeper/repository/auth_repository.dart';
 import 'package:keeper/utils/AppRoutes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:keeper/resources/api_token.dart' as globals;
 
 class LoginViewModel with ChangeNotifier {
   final repo = AuthRepository();
@@ -23,7 +24,7 @@ class LoginViewModel with ChangeNotifier {
       // Saving the data
       saveToken(value['data']['token'].toString());
 
-      Navigator.pushReplacementNamed(context, AppRouters.home);
+      Navigator.pushNamedAndRemoveUntil(context, AppRouters.home, (_) => false);
     }).onError((error, stackTrace) {
       setLoading(false);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -37,6 +38,7 @@ class LoginViewModel with ChangeNotifier {
   Future<bool> saveToken(String token) async {
     final SharedPreferences sp = await SharedPreferences.getInstance();
     sp.setString('access_token', token);
+    globals.token = token;
     notifyListeners();
     return true;
   }

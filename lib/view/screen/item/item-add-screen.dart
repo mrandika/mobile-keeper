@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:keeper/view_model/item_view_model.dart';
+import 'package:keeper/view_model/location_view_model.dart';
 import 'package:provider/provider.dart';
 
 class ItemAddScreen extends StatefulWidget {
@@ -21,9 +22,15 @@ class _ItemAddScreenState extends State<ItemAddScreen> {
   TextEditingController price_input = TextEditingController();
   FocusNode price_focus = FocusNode();
 
+  TextEditingController stock_input = TextEditingController();
+  FocusNode stock_focus = FocusNode();
+
   String name = '';
   String sku = '';
-  int price = 0;
+  String price = '0';
+  String stock = '0';
+
+  String? storageId;
 
   @override
   void dispose() {
@@ -34,6 +41,8 @@ class _ItemAddScreenState extends State<ItemAddScreen> {
     sku_focus.dispose();
     price_input.dispose();
     price_focus.dispose();
+    stock_input.dispose();
+    stock_focus.dispose();
   }
 
   Future<void> scanBarcodeNormal() async {
@@ -59,8 +68,20 @@ class _ItemAddScreenState extends State<ItemAddScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    final view_model = Provider.of<LocationViewModel>(context, listen: false);
+
+    if (view_model.storages?.isEmpty ?? true) {
+      view_model.get_storage();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final view_model = Provider.of<ItemViewModel>(context);
+    final storage_view_model = Provider.of<LocationViewModel>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -129,7 +150,41 @@ class _ItemAddScreenState extends State<ItemAddScreen> {
               ),
               onChanged: (value) {
                 setState(() {
-                  name = value;
+                  price = value;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
+            DropdownButton(
+              hint: const Text("Pilih Penyimpanan"),
+              value: storageId,
+              isExpanded: true,
+              items: storage_view_model.storages?.map((item) {
+                return DropdownMenuItem(
+                  value: item.id ?? '',
+                  child: Text(item.row?.code ?? ''),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  storageId = value!;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: stock_input,
+              focusNode: stock_focus,
+              keyboardType: TextInputType.number,
+              enableSuggestions: false,
+              autocorrect: false,
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Stock Barang'
+              ),
+              onChanged: (value) {
+                setState(() {
+                  stock = value;
                 });
               },
             ),
@@ -142,7 +197,9 @@ class _ItemAddScreenState extends State<ItemAddScreen> {
                     Map data = {
                       'name': name_input.text,
                       'sku': sku_input.text,
-                      'price': price_input.text
+                      'price': price_input.text,
+                      'storage_id': storageId,
+                      'stock': stock_input.text
                     };
 
                     view_model.store_item(data, context);

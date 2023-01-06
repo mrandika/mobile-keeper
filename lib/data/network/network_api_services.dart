@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import 'package:keeper/data/application_exception.dart';
@@ -12,6 +11,7 @@ class NetworkApiServices extends BaseApiServices {
     dynamic jsonResponse;
 
     Map<String, String> _header = <String, String>{
+      "Accept": "application/json",
       "Authorization": "Bearer ${globals.token}"
     };
 
@@ -33,12 +33,35 @@ class NetworkApiServices extends BaseApiServices {
     dynamic jsonResponse;
 
     Map<String, String> _header = <String, String>{
+      "Accept": "application/json",
       "Authorization": "Bearer ${globals.token}"
     };
 
     try {
       http.Response response = await http
           .post(Uri.parse(url), headers: _header, body: data)
+          .timeout(const Duration(seconds: 5));
+
+      jsonResponse = return_response(response);
+    } on Exception {
+      throw Exception('Failed');
+    }
+
+    return jsonResponse;
+  }
+
+  @override
+  Future delete(String url) async {
+    dynamic jsonResponse;
+
+    Map<String, String> _header = <String, String>{
+      "Accept": "application/json",
+      "Authorization": "Bearer ${globals.token}"
+    };
+
+    try {
+      http.Response response = await http
+          .delete(Uri.parse(url), headers: _header)
           .timeout(const Duration(seconds: 5));
 
       jsonResponse = return_response(response);

@@ -1,3 +1,5 @@
+import 'package:keeper/model/data/warehouse_row.dart';
+
 import 'warehouse_aisle.dart';
 
 class WarehouseStorage {
@@ -8,6 +10,7 @@ class WarehouseStorage {
   String? createdAt;
   String? updatedAt;
   WarehouseAisle? aisle;
+  WarehouseRow? row;
 
   WarehouseStorage(
       {this.id,
@@ -16,7 +19,8 @@ class WarehouseStorage {
         this.warehouseAisleRowId,
         this.createdAt,
         this.updatedAt,
-        this.aisle});
+        this.aisle,
+        this.row});
 
   WarehouseStorage.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -26,6 +30,7 @@ class WarehouseStorage {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     aisle = json['aisle'] != null ? WarehouseAisle.fromJson(json['aisle']) : null;
+    row = json['row'] != null ? WarehouseRow.fromJson(json['row']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -38,6 +43,9 @@ class WarehouseStorage {
     data['updated_at'] = this.updatedAt;
     if (this.aisle != null) {
       data['aisle'] = this.aisle!.toJson();
+    }
+    if (this.row != null) {
+      data['row'] = this.row!.toJson();
     }
     return data;
   }

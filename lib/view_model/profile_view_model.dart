@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:keeper/model/response/profile_response.dart';
 import 'package:keeper/repository/auth_repository.dart';
+import 'package:keeper/utils/AppRoutes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:keeper/resources/api_token.dart' as globals;
 
 import '../model/data/user.dart';
 
@@ -43,6 +46,21 @@ class ProfileViewModel with ChangeNotifier {
     }).onError((error, stackTrace) {
       setLoading(false);
       setError(true);
+    });
+  }
+
+  Future<void> logout(BuildContext context) async {
+    setLoading(true);
+    setError(false);
+
+    repo.logout().then((value) async {
+      setLoading(false);
+
+      resetToken();
+      Navigator.pushNamedAndRemoveUntil(context, AppRouters.login, (_) => false);
+    }).onError((error, stackTrace) {
+      setLoading(false);
+      setError(true);
 
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -50,5 +68,13 @@ class ProfileViewModel with ChangeNotifier {
           )
       );
     });
+  }
+
+  Future<bool> resetToken() async {
+    final SharedPreferences sp = await SharedPreferences.getInstance();
+    sp.setString('access_token', '');
+    globals.token = '';
+    notifyListeners();
+    return true;
   }
 }

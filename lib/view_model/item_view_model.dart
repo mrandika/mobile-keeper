@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:keeper/model/response/item_response.dart';
 import '../model/data/item.dart';
 import '../repository/item_repository.dart';
-import '../utils/AppRoutes.dart';
 
 class ItemViewModel with ChangeNotifier {
   final repo = ItemRepository();
@@ -27,12 +26,11 @@ class ItemViewModel with ChangeNotifier {
   }
 
   setItems(List<Item>? items) {
-    _items = [];
     _items = items;
     notifyListeners();
   }
 
-  Future<void> get_item(BuildContext context) async {
+  Future<void> get_item() async {
     setLoading(true);
     setError(false);
 
@@ -54,17 +52,14 @@ class ItemViewModel with ChangeNotifier {
     repo.store_item(data).then((value) async {
       setLoading(false);
 
-      // Saving the data
+      // Get the data
+      get_item();
+
+      // Navigate back
       Navigator.pop(context);
     }).onError((error, stackTrace) {
       setLoading(false);
       setError(true);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Terjadi kesalahan'),
-          )
-      );
     });
   }
 }
